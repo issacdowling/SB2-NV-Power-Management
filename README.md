@@ -4,7 +4,7 @@
 
 Clone this repo, then put these files in /bin so you can use them without cd'ing into this repo:
 ```
-https://gitlab.com/issacdowling/gpu-optimus-power-control.git
+git clone https://gitlab.com/issacdowling/gpu-optimus-power-control.git
 cd gpu-optimus-power-control
 chmod +x gpu-*
 sudo cp gpu-* /bin/
