@@ -1,3 +1,5 @@
+#!/bin/sh
+
 sudo rm /etc/modprobe.d/dgpu.conf
 
 echo "Removing dgpu.conf"
