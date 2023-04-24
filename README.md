@@ -1,5 +1,27 @@
 # not-s76-power
 
+## Usage:
+
+Clone this repo, then put these files in /bin so you can use them without cd'ing into this repo:
+`
+git clone https://gitlab.com/issacdowling/not-s76-power.git
+cd not-s76-power
+chmod +x gpu-*
+sudo cp gpu-* /bin/
+`
+
+Use optimus:
+`
+gpu-hybrid
+`
+Integrated only:
+`
+gpu-integrated
+`
+Query:
+`
+gpu-query
+`
 
 ### Why does this exist?
 

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+FILE="/etc/modprobe.d/dgpu.conf"
+
+if [ -f "$FILE" ]; then
+    echo "GPU: Integrated-only"
+else 
+    echo "GPU: Hybrid"
+fi
