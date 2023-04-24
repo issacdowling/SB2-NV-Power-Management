@@ -32,4 +32,4 @@ My laptop has a dedicated NVIDIA GPU, and I wanted to control it since it wastes
 ### What does it do?
 Here are some bash scripts that with block / unblock the NVIDIA driver from running. If you want NVIDIA on *with* your integrated GPU (NVIDIA optimus) choose hybrid, if you want no NVIDIA, choose integrated. This should be used with the closed-source, official NVIDIA drivers, not nouveau.
 
-Integrated creates rules that stop the nvidia driver from running, Hybrid deletes those. This is way simpler than anything else, since those more complicated solutions (Envycontrol and System76-power break my system and take a while to run.)
+Integrated creates rules that stop the nvidia driver from running, Hybrid deletes those. This is way simpler than anything else, since those more complicated solutions (Envycontrol and System76-power) break my system and take a while to run.
