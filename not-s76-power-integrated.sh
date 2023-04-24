@@ -1,5 +1,7 @@
 sudo rm /etc/modprobe.d/dgpu.conf
 
+echo "Creating dgpu.conf"
+
 touch dgpu.conf
 echo "blacklist i2c_nvidia_gpu" >> dgpu.conf
 echo "blacklist nouveau" >> dgpu.conf
