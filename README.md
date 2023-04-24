@@ -14,10 +14,12 @@ Use optimus:
 `
 gpu-hybrid
 `
+
 Integrated only:
 `
 gpu-integrated
 `
+
 Query:
 `
 gpu-query
