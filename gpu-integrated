@@ -1,7 +1,5 @@
 #!/bin/sh
 
-sudo rm /etc/modprobe.d/dgpu.conf &> /dev/null
-
 echo "Creating dgpu.conf"
 
 touch dgpu.conf
@@ -14,7 +12,6 @@ echo "alias i2c_nvidia_gpu off" >> dgpu.conf
 echo "alias nouveau off" >> dgpu.conf
 echo "alias nvidia off" >> dgpu.conf
 echo "alias nvidia-drm off" >> dgpu.conf
-echo "options nvidia-drm modeset=1" >> dgpu.conf
 
 sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
 

@@ -7,8 +7,8 @@ echo "blacklist i2c_nvidia_gpu" >> dgpu.conf
 echo "blacklist nouveau" >> dgpu.conf
 echo "alias i2c_nvidia_gpu off" >> dgpu.conf
 echo "alias nouveau off" >> dgpu.conf
-echo "options nvidia-drm modeset=1" >> dgpu.conf
+echo "options nvidia-drm modeset=0" >> dgpu.conf
 
 sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
 
-echo "Reboot now. Hybrid NVIDIA available for games / video editing, but with 2W idle power consumption."
+echo "Reboot now. NVIDIA available for compute, but will tear in games."
