@@ -1,4 +1,4 @@
-# not-s76-power
+# Surface Book 2 dGPU
 
 ## Below this section is some explanation about weird Surface Book 2 Nvidia stuff, but
 ## This is how to set up my script to handle stuff (AFTER installing driver):
