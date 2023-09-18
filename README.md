@@ -6,8 +6,8 @@
 
 Clone this repo, then put these files in /bin so you can use them without cd'ing into this repo:
 ```
-git clone https://gitlab.com/issacdowling/gpu-optimus-power-control.git
-cd gpu-optimus-power-control
+git clone https://gitlab.com/issacdowling/sb2-nv.git
+cd sb2-nv
 chmod +x gpu-*
 sudo cp gpu-* /bin/
 ```
