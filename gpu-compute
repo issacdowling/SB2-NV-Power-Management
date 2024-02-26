@@ -12,4 +12,26 @@ echo 'options nvidia "NVreg_DynamicPowerManagement=0x02"' >> dgpu.conf
 
 sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
 
-echo "Reboot now. NVIDIA available for compute, but will tear in games."
+echo "Adding NVIDIA-specific environment variables. This may cause some apps to not even launch without prime-run, even on the iGPU"
+
+#First remove any mentions of the variables just incase they're out of date
+sudo sed -i '/__EGL_VENDOR_LIBRARY_FILENAMES/d' /etc/environment
+sudo sed -i '/VK_ICD_FILENAMES/d' /etc/environment
+sudo sed -i '/DXVK_FILTER_DEVICE_NAME/d' /etc/environment
+sudo sed -i '/VKD3D_FILTER_DEVICE_NAME/d' /etc/environment
+sudo sed -i '/__GLX_VENDOR_LIBRARY_NAME/d' /etc/environment
+sudo sed -i '/VDPAU_DRIVER/d' /etc/environment
+sudo sed -i '/CUDA_VISIBLE_DEVICES/d' /etc/environment
+
+#Then, the lines into the env variables
+echo '
+__EGL_VENDOR_LIBRARY_FILENAMES="/usr/share/glvnd/egl_vendor.d/50_mesa.json" 
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/intel_icd.x86_64.json:/usr/share/vulkan/icd.d/intel_icd.i686.json
+DXVK_FILTER_DEVICE_NAME="Intel"
+VKD3D_FILTER_DEVICE_NAME="Intel"
+__GLX_VENDOR_LIBRARY_NAME="mesa"
+VDPAU_DRIVER=va_gl
+CUDA_VISIBLE_DEVICES=""
+' | sudo tee -a /etc/environment > /dev/null
+
+echo "Reboot now. NVIDIA available for compute, but will tear in games / editing."
