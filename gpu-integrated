@@ -15,15 +15,4 @@ echo "alias nvidia-drm off" >> dgpu.conf
 
 sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
 
-echo "Removing NVIDIA-specific env variables to prevent needing prime-run with iGPU"
-
-sudo sed -i '/__EGL_VENDOR_LIBRARY_FILENAMES/d' /etc/environment
-sudo sed -i '/VK_ICD_FILENAMES/d' /etc/environment
-sudo sed -i '/DXVK_FILTER_DEVICE_NAME/d' /etc/environment
-sudo sed -i '/VKD3D_FILTER_DEVICE_NAME/d' /etc/environment
-sudo sed -i '/__GLX_VENDOR_LIBRARY_NAME/d' /etc/environment
-sudo sed -i '/VDPAU_DRIVER/d' /etc/environment
-sudo sed -i '/CUDA_VISIBLE_DEVICES/d' /etc/environment
-
-
-echo "Reboot now. NVIDIA disabled."
+echo "Reboot now. NVIDIA disabled. No power consumption."

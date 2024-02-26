@@ -3,11 +3,7 @@
 FILE="/etc/modprobe.d/dgpu.conf"
 
 if grep -q -F "modeset=" "$FILE"; then
-    if grep -q -F "modeset=0" "$FILE"; then
-        echo "GPU: Compute"
-    else
-        echo "GPU: Hybrid"
-    fi
+    echo "GPU: Hybrid"
 else
     echo "GPU: Integrated"
 fi
