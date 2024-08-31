@@ -64,3 +64,65 @@ sudo dkms remove nvidia/VERSION
 sudo dkms install nvidia/VERSION
 ```
 which removes the one that was built when you first installed it, then "installs" (it gets rebuilt with the replaced code, not just reinstalled) the updated version.
+
+### We've now removed the power limit
+
+## Fixing power management
+
+### The problem
+With `system76-power` installed, you can just run `system76-power graphics integrated` to disable the NVIDIA GPU, and `system76-power graphics hybrid` to enable it again. Job done.
+
+No.
+
+I mean, not no, that works, but not _fully_, for me at least. In what way? Well, if you run `lscpi | grep NVIDIA`, take the PCIE device ID on the left (something like `02:00.0`), and place it into this path `/sys/bus/pci/devices/ID/power_state`, then `cat` that, you'll get the power state of your GPU. Ideally, `D0` when doing something graphically demanding, `D3cold` when not. Sadly, when in `hybrid` mode (no matter the `DRM` setting or anything like that), I'm stuck in `D0`, even with nothing utilising the GPU. That's 2-3W of power just being wasted, which is very significant in the context of a laptop's power consumption when doing light work. Weirdly, this issue is solved if the laptop _starts up_ in `integrated` mode, then _moved_ into `hybrid` mode. With that, regular apps will leave the dGPU alone (fully powered off), and intensive ones will power it up just as necessary.
+
+### What do I need?
+Therefore, I need three things:
+
+* A way to force programs to use the dGPU, so games can be shoved onto the NVIDIA card if they don't automatically cooperate
+* A way to automatically enable `hybrid` mode on boot, and `integrated` mode on shutdown, so my laptop is always in a state where the GPU will dynamically turn on and off
+* A way to see the current power state conveniently without running the `cat power_state` command manually, since I'd like to know whether the GPU's in use or not easily
+
+### Force use of the dGPU
+For this, just use `prime-run`, it's available as `nvidia-prime` in the Arch repos, but - if you're using the `.run` driver, you can easily just take the script from [this repo](https://gitlab.archlinux.org/archlinux/packaging/packages/nvidia-prime) and be happy without any extra packages. To automate this (though you should obviously double-check the contents of the file before downloading it, as blindly executing files from the web isn't smart), just run the below commands:
+
+```
+curl -O -L https://gitlab.archlinux.org/archlinux/packaging/packages/nvidia-prime/-/raw/main/prime-run
+
+echo "File contents:"
+cat prime-run
+
+chmod +x prime-run
+mv prime-run /usr/bin/
+```
+
+## Closing notes:
+
+### What's my power consumption like now? (checked with `upower -d`       )
+* 4.8W - 15% brightness (perfectly comfortable for me indoors), web browser and a few terminals open, full resolution.
+
+### Big `Distrobox` user? 
+If you needn't mess with NVIDIA drivers within the container, and just want something seamless, create a container with the `--nvidia` flag for it to integrate with your host. If you want more flexibility to change files within the container, you can also install the `.run` drivers directly into your container (though they must be the same version that's on the host).
+
+Here's what I did:
+
+#### Install deps:
+```
+sudo pacman -S gcc make which acpid libglvnd pkgconfig --noconfirm
+```
+
+#### Remove X locks so the installer will run
+```
+sudo rm /tmp/.X*-lock
+```
+
+#### Install without kernel module
+```
+# Where did I get those arguments from? This repo: https://github.com/Docmine17/distrobox-nvidia
+sudo nvidia-driver.run -a -N --ui=none --no-kernel-module
+```
+
+#### Restart the Distrobox.
+
+### This all seems unnecessary, I'm having a much easier time
+My laptop has a Pascal (1000 series) GPU, so it supports less modern driver features, and it's in a weird laptop. I _expect_ that other people's devices are behaving much more nicely.
