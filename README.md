@@ -102,11 +102,11 @@ All I need to do is run `system76-power graphics integrated` on shutdown, and `s
 ```
 git clone https://gitlab.com/issacdowling/sb2-nv
 sudo mv sb2-nv/dgpu-toggle-on-boot.service /etc/systemd/system/
-sudo chown root:root /etc/systemd/system/dgpu-disable-on-shutdown.service
-sudo chmod 644 /etc/systemd/system/dgpu-disable-on-shutdown.service
+sudo chown root:root /etc/systemd/system/dgpu-toggle-on-boot.service
+sudo chmod 644 /etc/systemd/system/dgpu-toggle-on-boot.service
 
 # This is relevant for users on distros with SELinux
-sudo restorecon /etc/systemd/system/dgpu-disable-on-shutdown.service
+sudo restorecon /etc/systemd/system/dgpu-toggle-on-boot.service
 
 sudo systemctl enable dgpu-toggle-on-boot.service --now
 ```
