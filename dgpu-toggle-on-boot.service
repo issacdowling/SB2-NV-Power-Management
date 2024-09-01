@@ -1,0 +1,15 @@
+[Unit]
+Description=Disable the dGPU before shutting down, enables it when booting up
+After=system76-power.service
+
+[Service]
+Type=oneshot
+ExecStartPre=sleep 10
+ExecStart=/usr/bin/system76-power graphics hybrid
+ExecStartPost=nvidia-smi
+ExecStop=/usr/bin/system76-power graphics integrated
+TimeoutSec=120
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target

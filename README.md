@@ -96,6 +96,23 @@ chmod +x prime-run
 mv prime-run /usr/bin/
 ```
 
+### Automatically handle changing between `hybrid` / `integrated` on boot
+All I need to do is run `system76-power graphics integrated` on shutdown, and `system76-power graphics hybrid` on bootup. For this, it makes sense to use a service that handles this. It also sleeps before enabling the card (because otherwise there were issues), and runs `nvidia-smi` once in the background to make sure the card is actually fully up (it may not appear in Vulkan apps as an option without this step).
+
+```
+git clone https://gitlab.com/issacdowling/sb2-nv
+sudo mv sb2-nv/dgpu-toggle-on-boot.service /etc/systemd/system/
+sudo chown root:root /etc/systemd/system/dgpu-disable-on-shutdown.service
+sudo chmod 644 /etc/systemd/system/dgpu-disable-on-shutdown.service
+
+# This is relevant for users on distros with SELinux
+sudo restorecon /etc/systemd/system/dgpu-disable-on-shutdown.service
+
+sudo systemctl enable dgpu-toggle-on-boot.service --now
+```
+
+This does slow shutdown by around 30s, but does not slow boot.
+
 ## Closing notes:
 
 ### What's my power consumption like now? (checked with `upower -d`       )
