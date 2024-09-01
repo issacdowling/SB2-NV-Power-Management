@@ -113,6 +113,19 @@ sudo systemctl enable dgpu-toggle-on-boot.service --now
 
 This does slow shutdown by around 30s, but does not slow boot.
 
+### Showing the current mode constantly
+I use Waybar, and - if you use waybar too - just go into your Waybar config, replace ID below with the PCIE ID you got when originally checking the power state, and add this:
+```
+"custom/pciepowerstate": {
+    "exec": "cat /sys/bus/pci/devices/ID/power_state",
+    "format": "{}  󰢮",
+    "interval": 10
+},
+```
+You need a nerdfont for the GPU icon to appear.
+
+![Waybar showing the text d3cold](waybarpower.png)
+
 ## Closing notes:
 
 ### What's my power consumption like now? (checked with `upower -d`       )
