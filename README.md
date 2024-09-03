@@ -96,7 +96,7 @@ echo "File contents:"
 cat prime-run
 
 chmod +x prime-run
-mv prime-run /usr/bin/
+sudo mv prime-run /usr/bin/
 ```
 
 #### Force Intel:
@@ -110,7 +110,7 @@ echo "File contents:"
 cat unprime-run
 
 chmod +x unprime-run
-mv unprime-run /usr/bin
+sudo mv unprime-run /usr/bin
 ```
 
 ### Automatically handle changing between `hybrid` / `integrated` on boot
