@@ -79,11 +79,14 @@ I mean, not no, that works, but not _fully_, for me at least. In what way? Well,
 ### What do I need?
 Therefore, I need three things:
 
-* A way to force programs to use the dGPU, so games can be shoved onto the NVIDIA card if they don't automatically cooperate
+* A way to force programs to use the GPU I want, so games can be shoved onto the NVIDIA card if they don't automatically cooperate, and lighter apps onto Intel
 * A way to automatically enable `hybrid` mode on boot, and `integrated` mode on shutdown, so my laptop is always in a state where the GPU will dynamically turn on and off
 * A way to see the current power state conveniently without running the `cat power_state` command manually, since I'd like to know whether the GPU's in use or not easily
 
-### Force use of the dGPU
+### Force use of a specific GPU
+
+#### Force NVIDIA:
+
 For this, just use `prime-run`, it's available as `nvidia-prime` in the Arch repos, but - if you're using the `.run` driver, you can easily just take the script from [this repo](https://gitlab.archlinux.org/archlinux/packaging/packages/nvidia-prime) and be happy without any extra packages. To automate this (though you should obviously double-check the contents of the file before downloading it, as blindly executing files from the web isn't smart), just run the below commands:
 
 ```
@@ -96,12 +99,26 @@ chmod +x prime-run
 mv prime-run /usr/bin/
 ```
 
+#### Force Intel:
+
+For this, I've made a 2-line text file called `unprime-run`, which currently only applies to Vulkan programs, but that's better than nothing.
+
+```
+curl -O -L https://gitlab.com/issacdowling/sb2-nv/-/raw/main/unprime-run
+
+echo "File contents:"
+cat unprime-run
+
+chmod +x unprime-run
+mv unprime-run /usr/bin
+```
+
 ### Automatically handle changing between `hybrid` / `integrated` on boot
 All I need to do is run `system76-power graphics integrated` on shutdown, and `system76-power graphics hybrid` on bootup. For this, it makes sense to use a service that handles this. It also sleeps before enabling the card (because otherwise there were issues), and runs `nvidia-smi` once in the background to make sure the card is actually fully up (it may not appear in Vulkan apps as an option without this step).
 
 ```
-git clone https://gitlab.com/issacdowling/sb2-nv
-sudo mv sb2-nv/dgpu-toggle-on-boot.service /etc/systemd/system/
+curl -O -L https://gitlab.com/issacdowling/sb2-nv/-/raw/main/dgpu-toggle-on-boot.service
+sudo mv dgpu-toggle-on-boot.service /etc/systemd/system/
 sudo chown root:root /etc/systemd/system/dgpu-toggle-on-boot.service
 sudo chmod 644 /etc/systemd/system/dgpu-toggle-on-boot.service
 
