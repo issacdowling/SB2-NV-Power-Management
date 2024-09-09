@@ -41,6 +41,14 @@ At this point, also run a `flatpak update` to get the flatpak NVIDIA runtimes in
 ### Making Vulkan work
 For some reason, these don't seem to include the files necessary to register your GPU as available to run `Vulkan` programs. Due to this, I download `nvidia-utils` [from the Arch repos](https://archlinux.org/packages/extra/x86_64/nvidia-utils/) with the "Download From Mirror" button, extract it, and copy over the whole `/usr/share/` directory from it to fill all missing files (mainly focused on `/usr/share/vulkan`'s ICDs, but there are some other files not otherwise filled in too).
 
+Also, though I'm not sure if necessary, I run
+```
+sudo cp /usr/share/vulkan/icd.d/* /etc/vulkan/icd.d/
+sudo cp /usr/share/vulkan/implicit_layer.d/* /etc/vulkan/implicit_layer.d/
+```
+since it seems right that these similar file paths would contain the same files, especially when the nvidia one ended up there anyway.
+
+
 ### Removing the power limit
 At this point, you've got a working driver, but you've also got a working power limit. To remove it, run
 ```
@@ -115,6 +123,8 @@ sudo mv unprime-run /usr/bin
 
 ### Automatically handle changing between `hybrid` / `integrated` on boot
 All I need to do is run `system76-power graphics integrated` on shutdown, and `system76-power graphics hybrid` on bootup. For this, it makes sense to use a service that handles this. It also sleeps before enabling the card (because otherwise there were issues), and runs `nvidia-smi` once in the background to make sure the card is actually fully up (it may not appear in Vulkan apps as an option without this step).
+
+Before I do this, I always reboot post-install, then set the GPU to integrated, reboot again, then do what's below. Probably not necessary, but it makes me feel better about it.
 
 ```
 curl -O -L https://gitlab.com/issacdowling/sb2-nv/-/raw/main/dgpu-toggle-on-boot.service
