@@ -155,6 +155,9 @@ You need a nerdfont for the GPU icon to appear.
 
 ## Closing notes:
 
+### For some reason, if an app is misbehaving GPU-wise, it can be helpful to restart after trying to use it for the first time.
+I don't know why this is, it makes no sense, but I observed it with Godot and Unreal.
+
 ### What's my power consumption like now? (checked with `upower -d`       )
 * 4.8W - 15% brightness (perfectly comfortable for me indoors), web browser and a few terminals open, full resolution.
 
