@@ -1,0 +1,9 @@
+#!/bin/sh
+
+FILE="/etc/modprobe.d/dgpu.conf"
+
+if grep -q -F "modeset=" "$FILE"; then
+    echo "GPU: Hybrid (if you enable this while booted, it'll work but no modeset (tearing when being rendered by dGPU, but working for compute, like ML or Blender) until you reboot"
+else
+    echo "GPU: Integrated"
+fi

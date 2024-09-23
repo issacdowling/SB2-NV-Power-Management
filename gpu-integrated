@@ -1,0 +1,24 @@
+#!/bin/sh
+
+echo "Creating dgpu.conf (disabling NVIDIA drivers at boot)"
+
+touch dgpu.conf
+echo "blacklist i2c_nvidia_gpu" >> dgpu.conf
+echo "blacklist nouveau" >> dgpu.conf
+echo "blacklist nvidia" >> dgpu.conf
+echo "blacklist nvidia-drm" >> dgpu.conf
+echo "blacklist nvidia-modeset" >> dgpu.conf
+echo "alias i2c_nvidia_gpu off" >> dgpu.conf
+echo "alias nouveau off" >> dgpu.conf
+echo "alias nvidia off" >> dgpu.conf
+echo "alias nvidia-drm off" >> dgpu.conf
+echo "alias nvidia-modeset off" >> dgpu.conf
+
+sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
+
+echo "Disabling NVIDIA drivers at runtime (only works if you didn't boot into Hybrid mode, since modeset stops it)"
+sudo rmmod nvidia_uvm
+sudo rmmod nvidia_modeset
+sudo rmmod nvidia
+
+echo "NVIDIA disabled. No power consumption. Reboot if you booted in Hybrid mode"

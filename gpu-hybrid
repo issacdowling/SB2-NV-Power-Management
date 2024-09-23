@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo "Creating dgpu.conf (enabling NVIDIA driver at boot)"
+
+touch dgpu.conf
+echo "blacklist i2c_nvidia_gpu" >> dgpu.conf
+echo "blacklist nouveau" >> dgpu.conf
+echo "alias i2c_nvidia_gpu off" >> dgpu.conf
+echo "alias nouveau off" >> dgpu.conf
+echo "options nvidia NVreg_DynamicPowerManagement=0x01" >> dgpu.conf
+echo "options nvidia-drm modeset=1" >> dgpu.conf
+
+sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
+
+echo "Enabling NVIDIA driver at runtime"
+sudo modprobe nvidia_uvm
+sudo modprobe nvidia
+
+echo "Reboot now if you need modeset (no tearing for regular rendering, fine for compute). Hybrid NVIDIA available, treat normally, but with 2W idle power consumption. Nvidia sometimes won't run programs until nvidia-smi & something with prime-run (like glmark) has been run. I don't know why this is, and it applies to Vulkan and OpenGL, and when booted/runtime put into Hybrid."
