@@ -6,8 +6,6 @@ Firstly, as of yet, I've only had experience doing this on a Surface Book 2. Dif
 
 One _very_ unique issue with this laptop is that the GPU is limited to 7W-ish of power consumption on battery unless you patch the NVIDIA driver to always believe it's running on AC power. We'll be addressing this first, but you should not follow these steps on your non-Surface-Book-2 laptop. After that, we'll get to what I do to solve the other power management issues.
 
-When we get to those, you'll need to use `system76-power` to "handle" the power management (over something like `TLP` or `power-profiles-daemon`). If you're on Fedora, use the COPR repo, that's what I do. You're going to need to remove conflicting tools, System76 has docs on this. Get `system76-power` installed, which didn't involve installing any firmware things, but did involve enabling the copr [which can be found here](https://support.system76.com/articles/system76-driver/), then [installing](https://support.system76.com/articles/system76-software/) _JUST_ `system76-power` and no other packages, then continue here.
-
 ## Surface Book 2 Power Limit Removal
 
 ### `.run` Installation
@@ -20,12 +18,12 @@ Their [CUDA download page](https://developer.nvidia.com/cuda-downloads?target_os
 I install these dependencies to make sure the installation can complete:
 ```
 sudo dnf upgrade --refresh
-sudo dnf install kernel-headers kernel-devel gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig 
+sudo dnf install kernel-headers kernel-devel gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
 ```
 
 Then, as I've had issues installing it while the system's up, I reboot to a TTY.
 ```
-systemctl set-default multi-user.target  
+systemctl set-default multi-user.target
 reboot
 ```
 
@@ -68,7 +66,7 @@ If your driver was often being updated, this would constantly be being undone.
 
 Now, every driver update (which you'll be doing manually, so it shouldn't ever sneak up on you), you'll need to run
 ```
-sudo dkms remove nvidia/VERSION  
+sudo dkms remove nvidia/VERSION
 sudo dkms install nvidia/VERSION
 ```
 which removes the one that was built when you first installed it, then "installs" (it gets rebuilt with the replaced code, not just reinstalled) the updated version.
@@ -77,18 +75,11 @@ which removes the one that was built when you first installed it, then "installs
 
 ## Fixing power management
 
-### The problem
-With `system76-power` installed, you can just run `system76-power graphics integrated` to disable the NVIDIA GPU, and `system76-power graphics hybrid` to enable it again. Job done.
-
-No.
-
-I mean, not no, that works, but not _fully_, for me at least. In what way? Well, if you run `lscpi | grep NVIDIA`, take the PCIE device ID on the left (something like `02:00.0`), and place it into this path `/sys/bus/pci/devices/ID/power_state`, then `cat` that, you'll get the power state of your GPU. Ideally, `D0` when doing something graphically demanding, `D3cold` when not. Sadly, when in `hybrid` mode (no matter the `DRM` setting or anything like that), I'm stuck in `D0`, even with nothing utilising the GPU. That's 2-3W of power just being wasted, which is very significant in the context of a laptop's power consumption when doing light work. Weirdly, this issue is solved if the laptop _starts up_ in `integrated` mode, then _moved_ into `hybrid` mode. With that, regular apps will leave the dGPU alone (fully powered off), and intensive ones will power it up just as necessary.
-
 ### What do I need?
-Therefore, I need three things:
+I need three things:
 
 * A way to force programs to use the GPU I want, so games can be shoved onto the NVIDIA card if they don't automatically cooperate, and lighter apps onto Intel
-* A way to automatically enable `hybrid` mode on boot, and `integrated` mode on shutdown, so my laptop is always in a state where the GPU will dynamically turn on and off
+* A way to switch between hybrid and integrated mode, along with explaining the limitations regarding NVIDIA Modeset
 * A way to see the current power state conveniently without running the `cat power_state` command manually, since I'd like to know whether the GPU's in use or not easily
 
 ### Force use of a specific GPU
@@ -121,24 +112,17 @@ chmod +x unprime-run
 sudo mv unprime-run /usr/bin
 ```
 
-### Automatically handle changing between `hybrid` / `integrated` on boot
-All I need to do is run `system76-power graphics integrated` on shutdown, and `system76-power graphics hybrid` on bootup. For this, it makes sense to use a service that handles this. It also sleeps before enabling the card (because otherwise there were issues), and runs `nvidia-smi` once in the background to make sure the card is actually fully up (it may not appear in Vulkan apps as an option without this step).
-
-Before I do this, I always reboot post-install, then set the GPU to integrated, reboot again, then do what's below. Probably not necessary, but it makes me feel better about it.
-
+### Switching modes
+I wrote some basic bash scripts that should handle switching between `integrated` and `hybrid` modes, and querying the mode that you're currently in. Install them like this:
 ```
-curl -O -L https://gitlab.com/issacdowling/sb2-nv/-/raw/main/dgpu-toggle-on-boot.service
-sudo mv dgpu-toggle-on-boot.service /etc/systemd/system/
-sudo chown root:root /etc/systemd/system/dgpu-toggle-on-boot.service
-sudo chmod 644 /etc/systemd/system/dgpu-toggle-on-boot.service
-
-# This is relevant for users on distros with SELinux
-sudo restorecon /etc/systemd/system/dgpu-toggle-on-boot.service
-
-sudo systemctl enable dgpu-toggle-on-boot.service --now
+git clone https://gitlab.com/issacdowling/sb2-nv.git
+cd sb2-nv
+chmod +x gpu-*
+chmod +x unprime-run
+sudo cp gpu-* /bin/
+sudo cp unrime-run /usr/bin/
 ```
 
-This does slow shutdown by around 30s, but does not slow boot.
 
 ### Showing the current mode constantly
 I use Waybar, and - if you use waybar too - just go into your Waybar config, replace ID below with the PCIE ID you got when originally checking the power state, and add this:
@@ -161,7 +145,7 @@ I don't know why this is, it makes no sense, but I observed it with Godot and Un
 ### What's my power consumption like now? (checked with `upower -d`       )
 * 4.8W - 15% brightness (perfectly comfortable for me indoors), web browser and a few terminals open, full resolution.
 
-### Big `Distrobox` user? 
+### Big `Distrobox` user?
 If you needn't mess with NVIDIA drivers within the container, and just want something seamless, create a container with the `--nvidia` flag for it to integrate with your host. If you want more flexibility to change files within the container, you can also install the `.run` drivers directly into your container (though they must be the same version that's on the host).
 
 Here's what I did:
