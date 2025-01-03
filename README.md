@@ -2,7 +2,7 @@
 
 ## What's involved?
 
-Firstly, as of yet, I've only had experience doing this on a Surface Book 2. Different laptop? Different problems, presumably.
+Firstly, as of yet, I've only had experience doing this on a Surface Book 2. Different laptop? Different problems, presumably. This main branch is for OpenSUSE with `doas` instead of `sudo`, but you can go back to the Fedora `sudo` branch above.
 
 One _very_ unique issue with this laptop is that the GPU is limited to 7W-ish of power consumption on battery unless you patch the NVIDIA driver to always believe it's running on AC power. We'll be addressing this first, but you should not follow these steps on your non-Surface-Book-2 laptop. After that, we'll get to what I do to solve the other power management issues.
 
@@ -17,22 +17,12 @@ Their [CUDA download page](https://developer.nvidia.com/cuda-downloads?target_os
 
 I install these dependencies to make sure the installation can complete:
 ```
-sudo dnf upgrade --refresh
-sudo dnf install kernel-headers kernel-devel gcc make dkms acpid libglvnd-glx libglvnd-opengl libglvnd-devel pkgconfig
+doas zypper upgrade
+doas zypper in dkms # Break dkms to keep busybox-gzip, or switch, doesn't really matter.
+doas zypper in -t pattern devel_C_C++ devel_kernel 
 ```
 
-Then, as I've had issues installing it while the system's up, I reboot to a TTY.
-```
-systemctl set-default multi-user.target
-reboot
-```
-
-I then just run their `.run` package as root, following defaults other than rejecting their offer to back-up xorg configs, before (optionally) installing `CUDA` things and moving back to a graphical session.
-
-```
-systemctl set-default graphical.target
-reboot
-```
+I then just run their `.run` package as root, following defaults other than rejecting their offer to back-up xorg configs, before (optionally) installing `CUDA` things and rebooting.
 
 At this point, also run a `flatpak update` to get the flatpak NVIDIA runtimes installed (they're auto-detected).
 
@@ -41,8 +31,10 @@ For some reason, these don't seem to include the files necessary to register you
 
 Also, though I'm not sure if necessary, I run
 ```
-sudo cp /usr/share/vulkan/icd.d/* /etc/vulkan/icd.d/
-sudo cp /usr/share/vulkan/implicit_layer.d/* /etc/vulkan/implicit_layer.d/
+doas cp /usr/share/vulkan/icd.d/* /etc/vulkan/icd.d/
+doas cp /usr/share/vulkan/implicit_layer.d/* /etc/vulkan/implicit_layer.d/
+doas cp /etc/vulkan/icd.d/* /usr/share/vulkan/icd.d/
+doas cp /etc/vulkan/implicit_layer.d/* /usr/share/vulkan/implicit_layer.d/
 ```
 since it seems right that these similar file paths would contain the same files, especially when the nvidia one ended up there anyway.
 
@@ -50,7 +42,7 @@ since it seems right that these similar file paths would contain the same files,
 ### Removing the power limit
 At this point, you've got a working driver, but you've also got a working power limit. To remove it, run
 ```
-sudo nano /usr/src/nvidia-VERSION/nvidia/nv-acpi.c
+doas nvim /usr/src/nvidia-VERSION/nvidia/nv-acpi.c
 ```
 where VERSION can be found by using terminal autocomplete or with `nvidia-smi --version`.
 
@@ -66,8 +58,8 @@ If your driver was often being updated, this would constantly be being undone.
 
 Now, every driver update (which you'll be doing manually, so it shouldn't ever sneak up on you), you'll need to run
 ```
-sudo dkms remove nvidia/VERSION
-sudo dkms install nvidia/VERSION
+doas dkms remove nvidia/VERSION
+doas dkms install nvidia/VERSION
 ```
 which removes the one that was built when you first installed it, then "installs" (it gets rebuilt with the replaced code, not just reinstalled) the updated version.
 
@@ -95,7 +87,7 @@ echo "File contents:"
 cat prime-run
 
 chmod +x prime-run
-sudo mv prime-run /usr/bin/
+doas mv prime-run /bin/
 ```
 
 #### Force Intel:
@@ -109,7 +101,7 @@ echo "File contents:"
 cat unprime-run
 
 chmod +x unprime-run
-sudo mv unprime-run /usr/bin
+doas mv unprime-run /bin
 ```
 
 ### Switching modes
@@ -119,8 +111,8 @@ git clone https://gitlab.com/issacdowling/sb2-nv.git
 cd sb2-nv
 chmod +x gpu-*
 chmod +x unprime-run
-sudo cp gpu-* /bin/
-sudo cp unrime-run /usr/bin/
+doas cp gpu-* /bin/
+doas cp unrime-run /bin/
 ```
 
 

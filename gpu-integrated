@@ -14,11 +14,11 @@ echo "alias nvidia off" >> dgpu.conf
 echo "alias nvidia-drm off" >> dgpu.conf
 echo "alias nvidia-modeset off" >> dgpu.conf
 
-sudo mv dgpu.conf /etc/modprobe.d/dgpu.conf
+doas mv dgpu.conf /etc/modprobe.d/dgpu.conf
 
 echo "Disabling NVIDIA drivers at runtime (only works if you didn't boot into Hybrid mode, since modeset stops it)"
-sudo rmmod nvidia_uvm
-sudo rmmod nvidia_modeset
-sudo rmmod nvidia
+doas rmmod nvidia_uvm
+doas rmmod nvidia_modeset
+doas rmmod nvidia
 
 echo "NVIDIA disabled. No power consumption. Reboot if you booted in Hybrid mode"
